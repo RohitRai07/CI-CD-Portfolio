@@ -1,0 +1,33 @@
+# Workflow for CI-CD: 
+# Step 1: Code mil jaye.
+# Step 2: AWS par login kar paun.
+# Step 3: Mera code AWS par deploy ho jaye.
+# Step 4: Deployment ke liye S3 use karenge.
+# Step 5: IAM se AWS access credentials milenge.
+# Step 6: Agar hum ye sab steps GitHub Actions workflow me define kar dein, to deployment automatically perform ho jayega.
+
+
+name: portfolio deployment
+on:
+  push:
+    branches: 
+    - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout # it means saare code ko IDE se checout karo
+        uses: actions/checkout@v1 # it means github action ki repo me jaao & checkout searh karo usme checkout ke codes already likhe hue hai so it says  waha se automation ke liye code pick karlo
+      - name: Configure AWS Credentials # yaha  AWS me login karna padega &  uske liye hume creds chayie  honge toh woh noche secret wale me daalna hai
+        uses: aws-actions/configure-aws-credentials@v1 # ye bhi ek action hai wo we told ki humeye waa action chayie & similarly kisi aur ke liye chayie  hota tohh woh name yaha likhte like teraform aise
+        with:
+          aws-access-key-id: ${{ secret.AWS_ACCESS_KEY_ID }} # we  will get  this from IAM --> Go to IAM then select  Users --> click user name--> go to security credentials tab--> scroll down you will see access key -->  creaate access key--> then select Command line interface(CLI) because github bhi CLI ke  through hi cheeze karega --> scroll down click NEXT--> then  you will see Access key & secret access key-----> Now Copy the Access key --> then usko Github me jaaao aur secrets.aws_access_key_id me daalo how you will find? go to setting tab jo same github repo wale top me code || issues || pull request ||  actions || projects || end me settings  hai --> click on that--> then on left section below you will see secret & variables  ->click>then click -->actions--> waha hume woh secret key daalna hai in secret* & uska Name* me wahi rakhna hai jo humne yaha github action me likha hai toh  justcopy paste there so which means AWS_ACCESS_KEY_ID name hai & jo secret key hai woh value No go to IAM agai & copy the Secret Acceess  key right side wala here also setting ke secret & variables--> action--> yaha par new repository secret par click kiya & secrey access key paste kiya & name bhi same jo yaha actio me hai wahi waha bhi paste kiya then you will see below two secret key hogi ek access key  id & dusri Secret acces key 
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # the region where we are working jo AWS me region selected hai
+      - name: Deploy static site to s3 bucket
+        # run: aws s3 sync . s3://paste s3 bucket name here --delete 
+        run: aws s3 sync . s3://ci-cd-deployment-practice Info --delete # yaha kya hoga pura ka pura code lega & usko yaha s3 me sync kardega(ye code se ke buckey me deploy karega &  ye hum kaise karenge AWS CLI ke through karenge & code hum isliye github se S3 me daal sakte hai because IAM ne permisiion de di hai
+
+Humare portfolio deployemnt me kya hoga?
+jab bhi main branch me commit  hoga ya push hoga toh ye
+Jobs---> ke niche wale codes build and deploy ke saare  steps sabb jitne hai chal jaayenge
